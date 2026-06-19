@@ -40,6 +40,36 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="btnZoomOut">
+        <property name="text">
+         <string>Zoom -</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnZoomIn">
+        <property name="text">
+         <string>Zoom +</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="navSpacer">
+        <property name="propertyXml">
+         <string>width: 40</string>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnPrev">
         <property name="text">
          <string>Previous</string>

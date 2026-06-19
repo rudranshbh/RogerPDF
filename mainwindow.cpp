@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->btnNext, &QPushButton::clicked, this, &MainWindow::nextPage);
     connect(ui->btnPrev, &QPushButton::clicked, this, &MainWindow::prevPage);
+    connect(ui->btnZoomIn, &QPushButton::clicked, this, &MainWindow::zoomIn);
+    connect(ui->btnZoomOut, &QPushButton::clicked, this, &MainWindow::zoomOut);
 }
 
 MainWindow::~MainWindow()
@@ -62,6 +64,18 @@ void MainWindow::prevPage() {
     }
 }
 
+void MainWindow::zoomIn() {
+    currentZoom += 0.2f;
+    if (!currentPdfPath.isEmpty()) loadPdf(currentPdfPath, currentPage);
+}
+
+void MainWindow::zoomOut() {
+    if (currentZoom > 0.4f) {
+        currentZoom -= 0.2f;
+        if (!currentPdfPath.isEmpty()) loadPdf(currentPdfPath, currentPage);
+    }
+}
+
 void MainWindow::loadPdf(const QString &path, int pageNumber)
 {
     fz_context *ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
@@ -80,7 +94,7 @@ void MainWindow::loadPdf(const QString &path, int pageNumber)
 
         fz_page *page = fz_load_page(ctx, doc, pageNumber);
 
-        fz_matrix matrix = fz_scale(1.5f, 1.5f);
+        fz_matrix matrix = fz_scale(currentZoom, currentZoom);
 
         fz_rect bounds = fz_bound_page(ctx, page);
 

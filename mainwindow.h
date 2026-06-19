@@ -22,6 +22,8 @@ private slots:
     void openPdf();
     void nextPage();
     void prevPage();
+    void zoomIn();
+    void zoomOut();
 
 private:
     void loadPdf(const QString &path, int pageNumber);
@@ -31,5 +33,6 @@ private:
     QString currentPdfPath;
     int currentPage = 0;
     int totalPages = 0;
+    float currentZoom = 1.5f;
 };
 #endif // MAINWINDOW_H
