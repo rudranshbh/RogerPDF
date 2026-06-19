@@ -41,15 +41,27 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnZoomOut">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Zoom -</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+-</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnZoomIn">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Zoom +</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+=</string>
         </property>
        </widget>
       </item>
@@ -62,6 +74,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnPrev">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Previous</string>
         </property>
@@ -85,6 +100,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="btnNext">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>Next</string>
         </property>
@@ -101,6 +119,9 @@
     </item>
     <item>
      <widget class="QScrollArea" name="pdfScrollArea">
+      <property name="focusPolicy">
+       <enum>Qt::StrongFocus</enum>
+      </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
@@ -150,6 +171,9 @@
   <action name="actionOpen_PDF">
    <property name="text">
     <string>Open PDF</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionExit">

@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QString>
+#include <QKeyEvent>
+#include <mupdf/fitz.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,6 +20,9 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 private slots:
     void openPdf();
     void nextPage();
@@ -26,7 +31,8 @@ private slots:
     void zoomOut();
 
 private:
-    void loadPdf(const QString &path, int pageNumber);
+    void renderPage();
+    void closeCurrentDocument();
 
 private:
     Ui::MainWindow *ui;
@@ -34,5 +40,8 @@ private:
     int currentPage = 0;
     int totalPages = 0;
     float currentZoom = 1.5f;
+
+    fz_context *ctx = nullptr;
+    fz_document *doc = nullptr;
 };
 #endif // MAINWINDOW_H

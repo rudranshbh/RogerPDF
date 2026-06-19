@@ -12,23 +12,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    // Opening maximized to screen
     this->showMaximized();
 
-    fz_context *ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
-    if(ctx)
-    {
-        fz_drop_context(ctx);
-    }
+    ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
+    fz_register_document_handlers(ctx);
 
-    connect(
-        ui->actionOpen_PDF,   //Menu Action
-        &QAction::triggered,  //Signal emitted when clicked
-        this,                 //Receiver Object
-        &MainWindow::openPdf  //Slot to execute
-        );
-
+    connect(ui->actionOpen_PDF, &QAction::triggered, this, &MainWindow::openPdf);
     connect(ui->btnNext, &QPushButton::clicked, this, &MainWindow::nextPage);
     connect(ui->btnPrev, &QPushButton::clicked, this, &MainWindow::prevPage);
     connect(ui->btnZoomIn, &QPushButton::clicked, this, &MainWindow::zoomIn);
@@ -37,68 +26,88 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    closeCurrentDocument();
+    if (ctx) fz_drop_context(ctx);
     delete ui;
 }
 
-void MainWindow::openPdf(){
+void MainWindow::closeCurrentDocument() {
+    if (doc) {
+        fz_drop_document(ctx, doc);
+        doc = nullptr;
+    }
+}
 
-    currentPdfPath=QFileDialog::getOpenFileName(this,"Open PDF","","PDF Files (*.pdf)");
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Right || event->key() == Qt::Key_PageDown) {
+        nextPage();
+        event->accept();
+    } else if (event->key() == Qt::Key_Left || event->key() == Qt::Key_PageUp) {
+        prevPage();
+        event->accept();
+    } else {
+        QMainWindow::keyPressEvent(event);
+    }
+}
+
+void MainWindow::openPdf(){
+    currentPdfPath = QFileDialog::getOpenFileName(this, "Open PDF", "", "PDF Files (*.pdf)");
 
     if(!currentPdfPath.isEmpty()){
+        closeCurrentDocument();
+
+        fz_try(ctx) {
+            doc = fz_open_document(ctx, currentPdfPath.toUtf8().constData());
+            totalPages = fz_count_pages(ctx, doc);
+            currentPage = 0;
+            renderPage();
+        } fz_catch(ctx) {
+            ui->pdfPageLabel->setText("Failed to open PDF");
+        }
 
         QFileInfo fileinfo(currentPdfPath);         //used to extract file metadata
-        QString filename=fileinfo.fileName(); //extract only filename from info of filepath
-
-        currentPage = 0;
-        loadPdf(currentPdfPath, currentPage);
+        QString filename = fileinfo.fileName(); //extract only filename from info of filepath
     }
 }
 
 void MainWindow::nextPage() {
-    if (currentPage + 1 < totalPages) {
+    if (doc && currentPage + 1 < totalPages) {
         currentPage++;
-        loadPdf(currentPdfPath, currentPage);
+        renderPage();
     }
 }
 
 void MainWindow::prevPage() {
-    if (currentPage > 0) {
+    if (doc && currentPage > 0) {
         currentPage--;
-        loadPdf(currentPdfPath, currentPage);
+        renderPage();
     }
 }
 
 void MainWindow::zoomIn() {
-    currentZoom += 0.2f;
-    if (!currentPdfPath.isEmpty()) loadPdf(currentPdfPath, currentPage);
-}
-
-void MainWindow::zoomOut() {
-    if (currentZoom > 0.4f) {
-        currentZoom -= 0.2f;
-        if (!currentPdfPath.isEmpty()) loadPdf(currentPdfPath, currentPage);
+    if (doc) {
+        currentZoom += 0.2f;
+        renderPage();
     }
 }
 
-void MainWindow::loadPdf(const QString &path, int pageNumber)
+void MainWindow::zoomOut() {
+    if (doc && currentZoom > 0.4f) {
+        currentZoom -= 0.2f;
+        renderPage();
+    }
+}
+
+void MainWindow::renderPage()
 {
-    fz_context *ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
-
-    if (!ctx)
-        return;
-
-    fz_register_document_handlers(ctx);
+    if (!doc) return;
 
     fz_try(ctx)
     {
-        fz_document *doc = fz_open_document(ctx, path.toUtf8().constData());
-        totalPages = fz_count_pages(ctx, doc);
+        ui->pageInfoLabel->setText(QString("Page %1 of %2").arg(currentPage + 1).arg(totalPages));
 
-        ui->pageInfoLabel->setText(QString("Page %1 of %2").arg(pageNumber + 1).arg(totalPages));
-
-        fz_page *page = fz_load_page(ctx, doc, pageNumber);
-
-        // Fix blurriness by accounting for High DPI screens
+        fz_page *page = fz_load_page(ctx, doc, currentPage);
         float dpr = this->devicePixelRatioF();
         fz_matrix matrix = fz_scale(currentZoom * dpr, currentZoom * dpr);
 
@@ -106,14 +115,7 @@ void MainWindow::loadPdf(const QString &path, int pageNumber)
         bounds = fz_transform_rect(bounds, matrix);
         fz_irect bbox = fz_round_rect(bounds);
 
-        fz_pixmap *pix = fz_new_pixmap_with_bbox(
-            ctx,
-            fz_device_rgb(ctx),
-            bbox,
-            nullptr,
-            0
-            );
-
+        fz_pixmap *pix = fz_new_pixmap_with_bbox(ctx, fz_device_rgb(ctx), bbox, nullptr, 0);
         fz_clear_pixmap_with_value(ctx, pix, 255);
 
         fz_device *dev = fz_new_draw_device(ctx, matrix, pix);
@@ -122,30 +124,16 @@ void MainWindow::loadPdf(const QString &path, int pageNumber)
         fz_close_device(ctx, dev);
         fz_drop_device(ctx, dev);
 
-        QImage image(
-            fz_pixmap_samples(ctx, pix),
-            fz_pixmap_width(ctx, pix),
-            fz_pixmap_height(ctx, pix),
-            fz_pixmap_stride(ctx, pix),
-            QImage::Format_RGB888
-            );
-
-        // Tell Qt the image is high resolution so it scales down for sharpness
+        QImage image(fz_pixmap_samples(ctx, pix), fz_pixmap_width(ctx, pix), fz_pixmap_height(ctx, pix), fz_pixmap_stride(ctx, pix), QImage::Format_RGB888);
         image.setDevicePixelRatio(dpr);
-        QPixmap qpix = QPixmap::fromImage(image.copy());
 
-        ui->pdfPageLabel->setPixmap(qpix);
+        ui->pdfPageLabel->setPixmap(QPixmap::fromImage(image.copy()));
 
-        fz_drop_document(ctx, doc);
         fz_drop_pixmap(ctx, pix);
         fz_drop_page(ctx, page);
     }
     fz_catch(ctx)
     {
-        ui->pdfPageLabel->setText(
-            QString("Error: %1").arg(fz_caught_message(ctx))
-            );
+        ui->pdfPageLabel->setText(QString("Error: %1").arg(fz_caught_message(ctx)));
     }
-
-    fz_drop_context(ctx);
 }
