@@ -3,3 +3,4 @@ build*/
 *.pro.user 
 CMakeLists.txt.user 
 third_party/mupdf/
+setup_scripts_licenses
