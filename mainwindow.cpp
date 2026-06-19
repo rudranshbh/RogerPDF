@@ -14,9 +14,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Set "Restore Down" size and Icon
-    this->resize(1000, 800);
-    this->setWindowIcon(QIcon(":/logo.png")); // Ensure logo.png is in your .qrc file
+    // Initial restore-down size and logo
+    this->resize(800, 600);
+    this->setWindowIcon(QIcon(":/icons/logo.png"));
     this->showMaximized();
 
     ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
@@ -39,7 +39,6 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::setupShortcuts() {
-    // Explicit shortcuts to bypass widget focus issues
     new QShortcut(QKeySequence(Qt::Key_Right), this, SLOT(nextPage()));
     new QShortcut(QKeySequence(Qt::Key_Left), this, SLOT(prevPage()));
     new QShortcut(QKeySequence(Qt::Key_PageDown), this, SLOT(nextPage()));
@@ -108,7 +107,7 @@ void MainWindow::renderPage()
 
     fz_try(ctx)
     {
-        ui->pageInfoLabel->setText(QString("Page %1 of %2").arg(currentPage + 1).arg(totalPages));
+        ui->pageInfoLabel->setText(QString("%1 / %2").arg(currentPage + 1).arg(totalPages));
 
         fz_page *page = fz_load_page(ctx, doc, currentPage);
         float dpr = this->devicePixelRatioF();
