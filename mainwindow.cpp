@@ -23,12 +23,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::openPdf(){
 
-    QString filepath=QFileDialog::getOpenFileName(this,"Open PDF","","PDF Files (*.pdf)");
+    currentPdfPath=QFileDialog::getOpenFileName(this,"Open PDF","","PDF Files (*.pdf)");
 
-    if(!filepath.isEmpty()){
-        currentPdfPath = filepath;
+    if(!currentPdfPath.isEmpty()){
 
-        QFileInfo fileinfo(filepath);         //used to extract file metadata
+
+        QFileInfo fileinfo(currentPdfPath);         //used to extract file metadata
         QString filename=fileinfo.fileName(); //extract only filename from info of filepath
-        ui->pdfViewLabel->setText(currentPdfPath);}
+        ui->pdfViewLabel->setText(filename);
+        loadPdf(currentPdfPath);}
+}
+
+void MainWindow::loadPdf(const QString &path){
+    ui->pdfViewLabel->setText("Loading: "+path);
 }

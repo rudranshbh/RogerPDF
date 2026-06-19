@@ -20,7 +20,8 @@ public:
 
 private slots:
     void openPdf();
-
+private:
+    void loadPdf(const QString &path);
 private:
     Ui::MainWindow *ui;
     QString currentPdfPath;
