@@ -13,10 +13,23 @@ qt_add_executable(RogerPDF
     mainwindow.ui
 )
 
+target_include_directories(RogerPDF PRIVATE
+    third_party/mupdf/include
+)
+
+target_link_directories(RogerPDF PRIVATE
+    ${CMAKE_SOURCE_DIR}/third_party/mupdf/build/release
+)
+
 target_link_libraries(RogerPDF
     PRIVATE
         Qt::Core
         Qt::Widgets
+
+        mupdf
+        mupdf-third
+        mupdf-pkcs7
+        mupdf-threads
 )
 
 install(TARGETS RogerPDF

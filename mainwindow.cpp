@@ -2,12 +2,20 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog> //File picker dialog
 #include <QFileInfo>   //File metadata
+#include <mupdf/fitz.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    fz_context *ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
+    if(ctx)
+    {
+        fz_drop_context(ctx);
+    }
+
     connect(
         ui->actionOpen_PDF,   //Menu Action
         &QAction::triggered,  //Signal emitted when clicked
@@ -34,6 +42,29 @@ void MainWindow::openPdf(){
         loadPdf(currentPdfPath);}
 }
 
-void MainWindow::loadPdf(const QString &path){
-    ui->pdfViewLabel->setText("Loading: "+path);
+void MainWindow::loadPdf(const QString &path)
+{
+    fz_context *ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
+
+    if (!ctx)
+        return;
+
+    fz_register_document_handlers(ctx);
+
+    fz_try(ctx)
+    {
+        fz_document *doc = fz_open_document(ctx, path.toUtf8().constData());
+
+        ui->pdfViewLabel->setText("PDF Opened Successfully");
+
+        fz_drop_document(ctx, doc);
+    }
+    fz_catch(ctx)
+    {
+        ui->pdfViewLabel->setText(
+            QString("Error: %1").arg(fz_caught_message(ctx))
+            );
+    }
+
+    fz_drop_context(ctx);
 }
