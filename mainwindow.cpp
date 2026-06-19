@@ -5,12 +5,16 @@
 #include <mupdf/fitz.h>
 #include <QImage>
 #include <QPixmap>
+#include <QScreen>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Opening maximized to screen
+    this->showMaximized();
 
     fz_context *ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
     if(ctx)
@@ -94,12 +98,12 @@ void MainWindow::loadPdf(const QString &path, int pageNumber)
 
         fz_page *page = fz_load_page(ctx, doc, pageNumber);
 
-        fz_matrix matrix = fz_scale(currentZoom, currentZoom);
+        // Fix blurriness by accounting for High DPI screens
+        float dpr = this->devicePixelRatioF();
+        fz_matrix matrix = fz_scale(currentZoom * dpr, currentZoom * dpr);
 
         fz_rect bounds = fz_bound_page(ctx, page);
-
         bounds = fz_transform_rect(bounds, matrix);
-
         fz_irect bbox = fz_round_rect(bounds);
 
         fz_pixmap *pix = fz_new_pixmap_with_bbox(
@@ -113,7 +117,6 @@ void MainWindow::loadPdf(const QString &path, int pageNumber)
         fz_clear_pixmap_with_value(ctx, pix, 255);
 
         fz_device *dev = fz_new_draw_device(ctx, matrix, pix);
-
         fz_run_page(ctx, page, dev, fz_identity, nullptr);
 
         fz_close_device(ctx, dev);
@@ -127,6 +130,8 @@ void MainWindow::loadPdf(const QString &path, int pageNumber)
             QImage::Format_RGB888
             );
 
+        // Tell Qt the image is high resolution so it scales down for sharpness
+        image.setDevicePixelRatio(dpr);
         QPixmap qpix = QPixmap::fromImage(image.copy());
 
         ui->pdfPageLabel->setPixmap(qpix);
