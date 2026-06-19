@@ -10,6 +10,12 @@
     <height>1000</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Roger PDF</string>
   </property>
@@ -47,9 +53,6 @@
         <property name="text">
          <string>Zoom -</string>
         </property>
-        <property name="shortcut">
-         <string>Ctrl+-</string>
-        </property>
        </widget>
       </item>
       <item>
@@ -59,9 +62,6 @@
         </property>
         <property name="text">
          <string>Zoom +</string>
-        </property>
-        <property name="shortcut">
-         <string>Ctrl+=</string>
         </property>
        </widget>
       </item>
@@ -120,7 +120,7 @@
     <item>
      <widget class="QScrollArea" name="pdfScrollArea">
       <property name="focusPolicy">
-       <enum>Qt::StrongFocus</enum>
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>

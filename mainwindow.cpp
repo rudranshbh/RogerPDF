@@ -6,16 +6,23 @@
 #include <QImage>
 #include <QPixmap>
 #include <QScreen>
+#include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    // Set "Restore Down" size and Icon
+    this->resize(1000, 800);
+    this->setWindowIcon(QIcon(":/logo.png")); // Ensure logo.png is in your .qrc file
     this->showMaximized();
 
     ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
     fz_register_document_handlers(ctx);
+
+    setupShortcuts();
 
     connect(ui->actionOpen_PDF, &QAction::triggered, this, &MainWindow::openPdf);
     connect(ui->btnNext, &QPushButton::clicked, this, &MainWindow::nextPage);
@@ -31,23 +38,20 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setupShortcuts() {
+    // Explicit shortcuts to bypass widget focus issues
+    new QShortcut(QKeySequence(Qt::Key_Right), this, SLOT(nextPage()));
+    new QShortcut(QKeySequence(Qt::Key_Left), this, SLOT(prevPage()));
+    new QShortcut(QKeySequence(Qt::Key_PageDown), this, SLOT(nextPage()));
+    new QShortcut(QKeySequence(Qt::Key_PageUp), this, SLOT(prevPage()));
+    new QShortcut(QKeySequence("Ctrl+="), this, SLOT(zoomIn()));
+    new QShortcut(QKeySequence("Ctrl+-"), this, SLOT(zoomOut()));
+}
+
 void MainWindow::closeCurrentDocument() {
     if (doc) {
         fz_drop_document(ctx, doc);
         doc = nullptr;
-    }
-}
-
-void MainWindow::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Right || event->key() == Qt::Key_PageDown) {
-        nextPage();
-        event->accept();
-    } else if (event->key() == Qt::Key_Left || event->key() == Qt::Key_PageUp) {
-        prevPage();
-        event->accept();
-    } else {
-        QMainWindow::keyPressEvent(event);
     }
 }
 
@@ -67,7 +71,6 @@ void MainWindow::openPdf(){
         }
 
         QFileInfo fileinfo(currentPdfPath);         //used to extract file metadata
-        QString filename = fileinfo.fileName(); //extract only filename from info of filepath
     }
 }
 

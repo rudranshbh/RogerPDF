@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QString>
 #include <QKeyEvent>
+#include <QShortcut>
 #include <mupdf/fitz.h>
 
 QT_BEGIN_NAMESPACE
@@ -20,9 +21,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
-protected:
-    void keyPressEvent(QKeyEvent *event) override;
-
 private slots:
     void openPdf();
     void nextPage();
@@ -33,6 +31,7 @@ private slots:
 private:
     void renderPage();
     void closeCurrentDocument();
+    void setupShortcuts();
 
 private:
     Ui::MainWindow *ui;
