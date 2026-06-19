@@ -27,6 +27,7 @@ private slots:
     void prevPage();
     void zoomIn();
     void zoomOut();
+    void showAbout(); // Slot for formal technical documentation
 
 private:
     void renderPage();

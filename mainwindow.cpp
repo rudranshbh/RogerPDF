@@ -8,6 +8,7 @@
 #include <QScreen>
 #include <QShortcut>
 #include <QStyle>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->btnNext->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
     ui->actionOpen_PDF->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
     ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+    ui->actionAbout->setIcon(style()->standardIcon(QStyle::SP_MessageBoxInformation));
 
     this->showMaximized();
 
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupShortcuts();
 
     connect(ui->actionOpen_PDF, &QAction::triggered, this, &MainWindow::openPdf);
+    connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
     connect(ui->btnNext, &QPushButton::clicked, this, &MainWindow::nextPage);
     connect(ui->btnPrev, &QPushButton::clicked, this, &MainWindow::prevPage);
     connect(ui->btnZoomIn, &QPushButton::clicked, this, &MainWindow::zoomIn);
@@ -42,6 +45,22 @@ MainWindow::~MainWindow()
     closeCurrentDocument();
     if (ctx) fz_drop_context(ctx);
     delete ui;
+}
+
+void MainWindow::showAbout() {
+    QString aboutText =
+        "<h2>Roger PDF v1.0</h2>"
+        "<p><b>Developed by:</b> Rudransh Bhardwaj</p>"
+        "<p><b>Technical Stack:</b></p>"
+        "<ul>"
+        "<li><b>Language:</b> C++ (Standard 17)</li>"
+        "<li><b>Framework:</b> Qt 6 (UI Logic & High-DPI Scaling)</li>"
+        "<li><b>Engine:</b> MuPDF Fitz (Lightweight PDF Rendering)</li>"
+        "</ul>"
+        "<p><b>Core Features:</b> High-performance matrix re-rendering, "
+        "Anti-aliased DPI awareness, and native shortcut integration.</p>";
+
+    QMessageBox::about(this, "About Roger PDF", aboutText);
 }
 
 void MainWindow::setupShortcuts() {
