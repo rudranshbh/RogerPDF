@@ -52,10 +52,21 @@ void MainWindow::loadPdf(const QString &path)
     fz_register_document_handlers(ctx);
 
     fz_try(ctx)
-    {
-        fz_document *doc = fz_open_document(ctx, path.toUtf8().constData());
+    {fz_document *doc = fz_open_document(ctx, path.toUtf8().constData());
 
-        ui->pdfViewLabel->setText("PDF Opened Successfully");
+        int pageCount = fz_count_pages(ctx, doc);
+
+        fz_page *page = fz_load_page(ctx, doc, 0);
+
+        if(page)
+        {
+            ui->pdfViewLabel->setText(
+                QString("Page 1 Loaded | Total Pages: %1")
+                    .arg(pageCount)
+                );
+
+            fz_drop_page(ctx, page);
+        }
 
         fz_drop_document(ctx, doc);
     }
