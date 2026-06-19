@@ -17,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->resize(800, 600);
 
-    // Using Qt Standard Icons library (No external files needed)
     this->setWindowIcon(style()->standardIcon(QStyle::SP_FileIcon));
     ui->btnPrev->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
     ui->btnNext->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
@@ -72,11 +71,12 @@ void MainWindow::openPdf(){
             totalPages = fz_count_pages(ctx, doc);
             currentPage = 0;
             renderPage();
+
+            QFileInfo fileinfo(currentPdfPath);         //used to extract file metadata
+            this->setWindowTitle(QString("Roger PDF - %1").arg(fileinfo.fileName()));
         } fz_catch(ctx) {
             ui->pdfPageLabel->setText("Failed to open PDF");
         }
-
-        QFileInfo fileinfo(currentPdfPath);         //used to extract file metadata
     }
 }
 
