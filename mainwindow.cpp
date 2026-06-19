@@ -7,6 +7,7 @@
 #include <QPixmap>
 #include <QScreen>
 #include <QShortcut>
+#include <QStyle>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -14,9 +15,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Initial restore-down size and logo
     this->resize(800, 600);
-    this->setWindowIcon(QIcon(":/icons/logo.png"));
+
+    // Using Qt Standard Icons library (No external files needed)
+    this->setWindowIcon(style()->standardIcon(QStyle::SP_FileIcon));
+    ui->btnPrev->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
+    ui->btnNext->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
+    ui->actionOpen_PDF->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+
     this->showMaximized();
 
     ctx = fz_new_context(nullptr, nullptr, FZ_STORE_DEFAULT);
