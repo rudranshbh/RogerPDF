@@ -20,11 +20,15 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
 void MainWindow::openPdf(){
+
     QString filepath=QFileDialog::getOpenFileName(this,"Open PDF","","PDF Files (*.pdf)");
 
     if(!filepath.isEmpty()){
+        currentPdfPath = filepath;
+
         QFileInfo fileinfo(filepath);         //used to extract file metadata
         QString filename=fileinfo.fileName(); //extract only filename from info of filepath
-        ui->pdfViewLabel->setText(filename);}
+        ui->pdfViewLabel->setText(currentPdfPath);}
 }

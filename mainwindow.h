@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include<QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,5 +23,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QString currentPdfPath;
 };
 #endif // MAINWINDOW_H
