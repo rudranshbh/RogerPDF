@@ -2,3 +2,4 @@ build*/
 *.user 
 *.pro.user 
 CMakeLists.txt.user 
+third_party/mupdf/
