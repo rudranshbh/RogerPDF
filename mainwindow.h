@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include<QString>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,10 +20,16 @@ public:
 
 private slots:
     void openPdf();
+    void nextPage();
+    void prevPage();
+
 private:
-    void loadPdf(const QString &path);
+    void loadPdf(const QString &path, int pageNumber);
+
 private:
     Ui::MainWindow *ui;
     QString currentPdfPath;
+    int currentPage = 0;
+    int totalPages = 0;
 };
 #endif // MAINWINDOW_H
