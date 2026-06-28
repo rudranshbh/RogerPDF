@@ -1,2 +1,0 @@
-    CC build/release/source/tools/mutool.o
-make: *** [Makefile:116: build/release/source/tools/mutool.o] Error 1
