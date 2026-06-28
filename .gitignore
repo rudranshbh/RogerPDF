@@ -1,0 +1,19 @@
+# Build outputs
+x64/
+Generated Files/
+RogerPDF/x64/
+.vs/
+
+# NuGet packages
+packages/
+
+# User/generated project files
+*.user
+*.pfx
+
+# Logs
+build_log.txt
+
+# MuPDF build artifacts
+third_party/mupdf/platform/win32/x64/
+third_party/mupdf/build/

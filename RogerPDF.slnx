@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="RogerPDF.vcxproj" Id="467a4cde-e95b-42fb-a910-5436a7b0fb48">
+    <Deploy />
+  </Project>
+</Solution>
