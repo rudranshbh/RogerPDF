@@ -69,21 +69,37 @@
             </AppBarElementContainer>
             <AppBarButton Icon="ZoomIn" Click="ZoomIn_Click"/>
             <AppBarSeparator/>
+            <AppBarButton Icon="BackToWindow" Label="Fit Page" Click="FitPage_Click"/>
+            <AppBarButton Icon="AlignCenter" Label="Fit Width" Click="FitWidth_Click"/>
+            <AppBarToggleButton x:Name="BtnContinuous" Icon="List" Label="Continuous" Click="Continuous_Click"/>
+            <AppBarSeparator/>
             <AppBarButton Icon="Help" Label="About" Click="OnAboutClick"/>
         </CommandBar>
 
+        <!--
+            ZoomMode="Enabled" to allow touchpad pinch gestures.
+            We intercept ViewChanged to extract the zoom factor, fold it into
+            currentZoom, reset ScrollViewer zoom back to 1.0, and re-render.
+        -->
         <ScrollViewer x:Name="PdfScrollViewer" Grid.Row="2"
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Auto"
                       ZoomMode="Enabled"
-                      ViewChanged="OnScrollViewerViewChanged">
-            <Grid Background="Transparent" Padding="40">
+                      MinZoomFactor="1.0"
+                      MaxZoomFactor="1.0"
+                      ViewChanged="OnScrollViewerViewChanged"
+                      SizeChanged="OnScrollViewerSizeChanged">
+            <Grid x:Name="PdfContentGrid" Background="Transparent" Padding="40"
+                  HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Image x:Name="PdfDisplayImage" Stretch="None"
                        HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Image.Shadow>
                         <ThemeShadow/>
                     </Image.Shadow>
                 </Image>
+                <StackPanel x:Name="ContinuousPanel" Orientation="Vertical"
+                            HorizontalAlignment="Center" Spacing="16"
+                            Visibility="Collapsed"/>
             </Grid>
         </ScrollViewer>
     </Grid>
